@@ -1,0 +1,6 @@
+[
+  {
+    "label": "Run Spring Boot Application",
+    "command": "./mvnw spring-boot:run",
+  },
+]
