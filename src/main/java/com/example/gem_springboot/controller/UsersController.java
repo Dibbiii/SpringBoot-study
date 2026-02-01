@@ -1,8 +1,10 @@
 package com.example.gem_springboot.controller;
 
 import com.example.gem_springboot.models.UserModel;
+import com.example.gem_springboot.services.UserService;
+import java.util.ArrayList;
 import java.util.List;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,28 +18,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/users")
 public class UsersController {
 
-    List<UserModel> UsersDatabase = List.of(
-        new UserModel("1", "John Doe", "john@example.com"),
-        new UserModel("2", "Jane Tin", "jane@example.com")
-    );
+    @Autowired
+    private UserService userService;
 
     @GetMapping
-    public List<UserModel> getAllUsers() {
-        return UsersDatabase;
+    public List<UserModel> findAll() {
+        return userService.findAll();
     }
-    
+
     @GetMapping("/{id}")
-    public UserModel getUser(@PathVariable String id){
-        return UsersDatabase.stream()
-            .filter(u -> u.getId().equals(id))
-            .findFirst()
-            .orElse(null);
+    public UserModel findById(@PathVariable String id) {
+        return userService.findById(id).orElse(null);
     }
 
     @PostMapping
     public UserModel createUser(@RequestBody UserModel user) {
-        UsersDatabase.add(user);
-        return user;
+        return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
@@ -45,26 +41,12 @@ public class UsersController {
         @RequestBody UserModel user,
         @PathVariable String id
     ) {
-        return UsersDatabase.stream()
-            .filter(u -> u.getId().equals(id))
-            .findFirst()
-            .map(u -> {
-                u.setUsername(user.getUsername());
-                u.setEmail(user.getEmail());
-                return u;
-            })
-            .orElse(null);
+        return userService.updateUser(user, id).orElse(null);
     }
 
     @DeleteMapping("/{id}")
-    public UserModel deleteUser(@PathVariable String id) {
-        return UsersDatabase.stream()
-            .filter(u -> u.getId().equals(id))
-            .findFirst()
-            .map(u -> {
-                UsersDatabase.remove(u);
-                return u;
-            })
-            .orElse(null);
+    public String deleteUser(@PathVariable String id) {
+        boolean deleted = userService.deleteUser(id);
+        return deleted ? "User deleted" : "User not found";
     }
 }
