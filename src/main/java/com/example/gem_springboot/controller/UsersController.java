@@ -1,7 +1,7 @@
 package com.example.gem_springboot.controller;
 
-import com.example.gem_springboot.dto.UserResponse;
-import com.example.gem_springboot.models.UserModel;
+import com.example.gem_springboot.models.dto.UserResponse;
+import com.example.gem_springboot.models.entities.UserEntity;
 import com.example.gem_springboot.services.UserService;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,25 +28,25 @@ public class UsersController {
         @RequestParam(defaultValue = "0") int skip,
         @RequestParam(defaultValue = "10") int limit
     ) {
-        List<UserModel> paginatedUsers = userService.findPaginated(skip, limit);
+        List<UserEntity> paginatedUsers = userService.findPaginated(skip, limit);
         long totalRecords = userService.count();
 
         return new UserResponse(paginatedUsers, totalRecords);
     }
 
     @GetMapping("/{id}")
-    public UserModel findById(@PathVariable Long id) {
+    public UserEntity findById(@PathVariable Long id) {
         return userService.findById(id).orElse(null);
     }
 
     @PostMapping
-    public UserModel createUser(@RequestBody UserModel user) {
+    public UserEntity createUser(@RequestBody UserEntity user) {
         return userService.createUser(user);
     }
 
     @PutMapping("/{id}")
-    public UserModel updateUser(
-        @RequestBody UserModel user,
+    public UserEntity updateUser(
+        @RequestBody UserEntity user,
         @PathVariable Long id
     ) {
         return userService.updateUser(user, id).orElse(null);
