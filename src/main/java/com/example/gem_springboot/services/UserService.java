@@ -3,19 +3,21 @@ package com.example.gem_springboot.services;
 import com.example.gem_springboot.models.dto.UserResponse;
 import com.example.gem_springboot.models.entities.UserEntity;
 import com.example.gem_springboot.repositories.UserRepository;
+
+import lombok.RequiredArgsConstructor;
+
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserResponse findAllPaginated(
         String filter,
@@ -78,7 +80,7 @@ public class UserService {
 
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
-            userRepository.deleteById(id); 
+            userRepository.deleteById(id);
             return true;
         }
         return false;

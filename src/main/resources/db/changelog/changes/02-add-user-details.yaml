@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 02-add-user-details
+      author: alessandra
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: password
+                  type: varchar(255)
+                  defaultValue: "123456" # Valore di default per gli utenti esistenti
+              - column:
+                  name: created_at
+                  type: timestamp
+                  defaultValueDate: CURRENT_TIMESTAMP

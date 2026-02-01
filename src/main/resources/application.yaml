@@ -34,6 +34,13 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
 
+  # Configurazione Jackson (json)
+  jackson:
+    # Se un campo è NULL, non includerlo nel JSON
+    default-property-inclusion: non_null
+    # Opzionale: Se vuoi che TUTTI i campi siano snake_case (es. created_at) invece di camelCase (createdAt)
+    # property-naming-strategy: SNAKE_CASE
+
 # Configurazione del Server
 server:
   port: 8080

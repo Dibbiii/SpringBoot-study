@@ -3,6 +3,9 @@ package com.example.gem_springboot.controller;
 import com.example.gem_springboot.models.dto.UserResponse;
 import com.example.gem_springboot.models.entities.UserEntity;
 import com.example.gem_springboot.services.UserService;
+
+import lombok.RequiredArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +19,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
 public class UsersController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService; // inietto UserService
 
     @GetMapping
     public UserResponse findAllPaginated(
