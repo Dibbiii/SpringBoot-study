@@ -26,12 +26,12 @@ public class UsersController {
     @GetMapping
     public UserResponse findAllPaginated(
         @RequestParam(defaultValue = "0") int skip,
-        @RequestParam(defaultValue = "10") int limit
+        @RequestParam(defaultValue = "10") int limit,
+        @RequestParam(defaultValue = "id") String sortBy,
+        @RequestParam(defaultValue = "asc") String order,
+        @RequestParam(required = false) String q
     ) {
-        List<UserEntity> paginatedUsers = userService.findPaginated(skip, limit);
-        long totalRecords = userService.count();
-
-        return new UserResponse(paginatedUsers, totalRecords);
+        return userService.findAllPaginated(q, sortBy, order, skip, limit);
     }
 
     @GetMapping("/{id}")

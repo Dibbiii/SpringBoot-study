@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity // dice ad Hibernate che questa classe corrisponde a una tabella del DB
-@Table(name = "users") // Nome della tabella creata con LiquidBase
+@Table(name = "users") // Nome della tabella creata con LiquiBase
 public class UserEntity {
 
     @Id // chiave primaria

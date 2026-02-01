@@ -29,7 +29,7 @@ spring:
       # ma le modifiche vere le farà Liquibase. È un approccio più sicuro".
       ddl-auto: validate
 
-  # Configurazione LiquidBase
+  # Configurazione LiquiBase
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
@@ -44,6 +44,9 @@ logging:
     org.springframework.web: INFO
     # Attiviamo i log della nostra app per vedere bene cosa succede
     com.alessandra.course: DEBUG
+    # Log di Liquibase per debug
+    liquibase: DEBUG
+    org.springframework.boot.autoconfigure: DEBUG
 
 # --- LA NOSTRA CONFIGURAZIONE PERSONALIZZATA ---
 # Qui definiamo le proprietà specifiche del nostro corso.

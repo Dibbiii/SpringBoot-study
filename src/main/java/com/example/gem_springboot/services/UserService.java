@@ -1,51 +1,87 @@
 package com.example.gem_springboot.services;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
-import org.springframework.stereotype.Service;
-
+import com.example.gem_springboot.models.dto.UserResponse;
 import com.example.gem_springboot.models.entities.UserEntity;
+import com.example.gem_springboot.repositories.UserRepository;
+import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
-    private final List<UserEntity> UsersDatabase = new CopyOnWriteArrayList<>();
+    @Autowired
+    UserRepository userRepository;
 
-    public UserService() {
-        UsersDatabase.add(new UserEntity(1L, "John Doe", "john@example.com"));
-        UsersDatabase.add(new UserEntity(2L, "Jane Tin", "jane@example.com"));
+    public UserResponse findAllPaginated(
+        String filter,
+        String sortBy,
+        String order,
+        int skip,
+        int limit
+    ) {
+        int pageNumber = skip / limit; // Spring Data usa le pagine (0, 1, 2), non skip e limit diretti
+
+        // Creo l'oggetto sort
+        Sort.Direction direction = order.equalsIgnoreCase("desc")
+            ? Sort.Direction.DESC
+            : Sort.Direction.ASC;
+        Sort sort = Sort.by(direction, sortBy);
+
+        // Creo l'oggetto pageable
+        Pageable pageable = PageRequest.of(pageNumber, limit, sort);
+
+        // Eseguo la query reale sul DB
+        Page<UserEntity> pageResult;
+
+        if (filter != null && !filter.isEmpty()) {
+            // Se c'è un filtro faccio una findAll semplice per non complicare troppo
+            // In produzione useremmo un metodo 'findByUsernameContaining...' nel repository
+            pageResult = userRepository.findAll(pageable); // TODO: Implementare ricerca testuale DB
+        } else {
+            pageResult = userRepository.findAll(pageable);
+        }
+
+        // Restituisco il DTO
+        return new UserResponse(
+            pageResult.getContent(),
+            pageResult.getTotalElements()
+        );
     }
-    
+
     public Optional<UserEntity> findById(Long id) {
-        return UsersDatabase.stream()
-            .filter(u -> u.getId().equals(id))
-            .findFirst();
+        return userRepository.findById(id);
     }
 
     public UserEntity createUser(UserEntity user) {
-        UsersDatabase.add(user);
-        return user;
+        // Controllo duplicati email
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException(
+                "Email already exists: " + user.getEmail()
+            );
+        }
+        return userRepository.save(user);
     }
 
     public Optional<UserEntity> updateUser(UserEntity user, Long id) {
-        return findById(id).map(existingUser -> {
-            existingUser.setUsername(user.getUsername());
-            existingUser.setEmail(user.getEmail());
-            // Non serve "salvare" di nuovo perché stiamo lavorando sull'oggetto in memoria
-            return existingUser;
-        });
+        return userRepository
+            .findById(id)
+            .map(existing -> {
+                existing.setUsername(user.getUsername());
+                existing.setEmail(user.getEmail());
+                return userRepository.save(existing);
+            });
     }
 
     public boolean deleteUser(Long id) {
-        return UsersDatabase.removeIf(u -> u.getId().equals(id));
-    }
-
-    public List<UserEntity> findPaginated(int skip, int limit) {
-        return UsersDatabase.stream().skip(skip).limit(limit).toList();
-    }
-
-    public long count() {
-        return UsersDatabase.size();
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id); 
+            return true;
+        }
+        return false;
     }
 }
