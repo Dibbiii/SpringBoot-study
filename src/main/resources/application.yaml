@@ -6,6 +6,33 @@ spring:
   threads:
     virtual:
       enabled: true
+  
+  #Configurazione DataBase
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gem_db
+    username: gem_user
+    password: gem_password
+    driver-class-name: org.postgresql.Driver
+  
+    # Configurazione JPA e Hibernate
+    jpa:
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      # Show SQL: per vedere le query che Hibernate scrive nella console
+      show-sql: true 
+      properties:
+        hibernate:
+          format_sql: true # Formatta le query per renderle leggibili
+      hibernate:
+        # DDL Auto: VALIDATE.
+        # Dice a Hibernate di controllare solo se le tabelle Java coincidono con il DB. 
+        # NON toccare nulla. Lascia fare a Liquibase -> Hibernate controlla solo se tutto è ok, 
+        # ma le modifiche vere le farà Liquibase. È un approccio più sicuro".
+        ddl-auto: validate
+  
+    # Configurazione LiquidBase ===
+    liquibase:
+      change-log: classpath:db/changelog/db.changelog-master.yaml
+      enabled: true    
 
 # Configurazione del Server
 server:

@@ -1,0 +1,13 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: gem_postgres
+    environment:
+      - POSTGRES_DB=gem_db
+      - POSTGRES_USER=gem_user
+      - POSTGRES_PASSWORD=gem_password
+    ports:
+      - "5432:5432"
+    volumes:
+      # Persistenza: così se spengo il container, i dati restano salvati in questa cartella locale
+      - ./postgres-data:/var/lib/postgresql/data
