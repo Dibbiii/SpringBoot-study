@@ -12,15 +12,11 @@ public class UserService {
     private final List<UserModel> UsersDatabase = new CopyOnWriteArrayList<>();
 
     public UserService() {
-        UsersDatabase.add(new UserModel("1", "John Doe", "john@example.com"));
-        UsersDatabase.add(new UserModel("2", "Jane Tin", "jane@example.com"));
+        UsersDatabase.add(new UserModel(1L, "John Doe", "john@example.com"));
+        UsersDatabase.add(new UserModel(2L, "Jane Tin", "jane@example.com"));
     }
-
-    public List<UserModel> findAll() {
-        return UsersDatabase;
-    }
-
-    public Optional<UserModel> findById(String id) {
+    
+    public Optional<UserModel> findById(Long id) {
         return UsersDatabase.stream()
             .filter(u -> u.getId().equals(id))
             .findFirst();
@@ -31,7 +27,7 @@ public class UserService {
         return user;
     }
 
-    public Optional<UserModel> updateUser(UserModel user, String id) {
+    public Optional<UserModel> updateUser(UserModel user, Long id) {
         return findById(id).map(existingUser -> {
             existingUser.setUsername(user.getUsername());
             existingUser.setEmail(user.getEmail());
@@ -40,7 +36,15 @@ public class UserService {
         });
     }
 
-    public boolean deleteUser(String id) {
+    public boolean deleteUser(Long id) {
         return UsersDatabase.removeIf(u -> u.getId().equals(id));
+    }
+
+    public List<UserModel> findPaginated(int skip, int limit) {
+        return UsersDatabase.stream().skip(skip).limit(limit).toList();
+    }
+
+    public long count() {
+        return UsersDatabase.size();
     }
 }
