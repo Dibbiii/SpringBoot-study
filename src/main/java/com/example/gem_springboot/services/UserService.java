@@ -39,10 +39,9 @@ public class UserService {
         Page<UserEntity> pageResult;
 
         if (filter != null && !filter.isEmpty()) {
-            // Se c'è un filtro faccio una findAll semplice per non complicare troppo
-            // In produzione useremmo un metodo 'findByUsernameContaining...' nel repository
-            pageResult = userRepository.findAll(pageable); // TODO: Implementare ricerca testuale DB
+            pageResult = userRepository.searchByText(filter, pageable);
         } else {
+            // Se non c'è nessun filtro restituisco tutta la lista paginata
             pageResult = userRepository.findAll(pageable);
         }
 
