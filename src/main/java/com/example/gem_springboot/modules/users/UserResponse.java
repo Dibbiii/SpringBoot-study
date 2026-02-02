@@ -1,8 +1,12 @@
 package com.example.gem_springboot.modules.users;
 
-import java.util.List;
+import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
-import com.example.gem_springboot.modules.users.internal.UserEntity;
-
-
-public record UserResponse(List<UserEntity> users, long total) {}
+public record UserResponse(
+    Long id,
+    String username,
+    String email,
+    @JsonFormat(pattern = "dd/MM/yyyy HH:mm:ss") // Spostiamo qui la formattazione!
+    LocalDateTime createdAt
+) {}

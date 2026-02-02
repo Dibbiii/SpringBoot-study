@@ -2,7 +2,6 @@ package com.example.gem_springboot.modules.users;
 
 import com.example.gem_springboot.modules.users.internal.UserEntity;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +20,7 @@ public class UsersController {
     private final UserService userService; // inietto UserService
 
     @GetMapping
-    public UserResponse findAllPaginated(
+    public UsersList findAllPaginated(
         @RequestParam(defaultValue = "0") int skip,
         @RequestParam(defaultValue = "10") int limit,
         @RequestParam(defaultValue = "id") String sortBy,
@@ -32,17 +31,17 @@ public class UsersController {
     }
 
     @GetMapping("/{id}")
-    public UserEntity findById(@PathVariable Long id) {
+    public UserResponse findById(@PathVariable Long id) {
         return userService.findById(id).orElse(null);
     }
 
     @PostMapping
-    public UserEntity createUser(@RequestBody UserRequest request) {
+    public UserResponse createUser(@RequestBody UserRequest request) {
         return userService.createUser(request);
     }
 
     @PutMapping("/{id}")
-    public UserEntity updateUser(
+    public UserResponse updateUser(
         @RequestBody UserRequest request,
         @PathVariable Long id
     ) {

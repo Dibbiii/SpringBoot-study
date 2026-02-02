@@ -3,6 +3,7 @@ package com.example.gem_springboot.modules.users;
 import com.example.gem_springboot.modules.users.internal.UserEntity;
 import com.example.gem_springboot.modules.users.internal.UserMapper;
 import com.example.gem_springboot.modules.users.internal.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,7 +19,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserResponse findAllPaginated(
+    public UsersList findAllPaginated(
         String filter,
         String sortBy,
         String order,
@@ -46,38 +47,38 @@ public class UserService {
             pageResult = userRepository.findAll(pageable);
         }
 
-        // Restituisco il DTO
-        return new UserResponse(
-            pageResult.getContent(),
-            pageResult.getTotalElements()
-        );
+        List<UserResponse> dtos = pageResult
+            .getContent()
+            .stream()
+            .map(userMapper::toDto)
+            .toList();
+
+        return new UsersList(dtos, pageResult.getTotalElements());
     }
 
-    public Optional<UserEntity> findById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserResponse> findById(Long id) {
+        return userRepository.findById(id).map(userMapper::toDto);
     }
 
-    public UserEntity createUser(UserRequest request) {
-        // Controllo duplicati email
+    public UserResponse createUser(UserRequest request) {
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException(
-                "Email already exists: " + request.email()
-            );
+            throw new RuntimeException("Email already exists");
         }
-        // uso il mapper per creare l'entità dai dati puliti così che il DB li possa salvare
-        // (il db lavora solo oggetti di tipo UserEntity perché sono gli unici mappati sulla tabella users (con @Entity, @Table))
-        UserEntity userEntity = userMapper.toEntity(request);
-        return userRepository.save(userEntity);
+        UserEntity entity = userMapper.toEntity(request);
+        entity = userRepository.save(entity);
+        // Converto in Dto
+        return userMapper.toDto(entity);
     }
 
-    public Optional<UserEntity> updateUser(UserRequest request, Long id) {
+    public Optional<UserResponse> updateUser(UserRequest request, Long id) {
         return userRepository
             .findById(id)
             .map(existingUser -> {
                 // MapStruct prende i dati da 'request' e li copia dentro 'existingUser'
                 // Solo i campi che matchano (username, email, password) vengono aggiornati.
                 userMapper.updateUserFromRequest(request, existingUser);
-                return userRepository.save(existingUser);
+                UserEntity saved = userRepository.save(existingUser);
+                return userMapper.toDto(saved);
             });
     }
 
