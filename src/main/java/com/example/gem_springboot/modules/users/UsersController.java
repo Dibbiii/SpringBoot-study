@@ -43,10 +43,10 @@ public class UsersController {
 
     @PutMapping("/{id}")
     public UserEntity updateUser(
-        @RequestBody UserEntity user,
+        @RequestBody UserRequest request,
         @PathVariable Long id
     ) {
-        return userService.updateUser(user, id).orElse(null);
+        return userService.updateUser(request, id).orElse(null);
     }
 
     @DeleteMapping("/{id}")

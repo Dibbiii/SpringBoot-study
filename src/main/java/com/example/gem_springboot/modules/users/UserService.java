@@ -64,17 +64,20 @@ public class UserService {
                 "Email already exists: " + request.email()
             );
         }
-        UserEntity userEntity = userMapper.toEntity(request); // uso il mapper per creare l'entità dai dati puliti
+        // uso il mapper per creare l'entità dai dati puliti così che il DB li possa salvare
+        // (il db lavora solo oggetti di tipo UserEntity perché sono gli unici mappati sulla tabella users (con @Entity, @Table))
+        UserEntity userEntity = userMapper.toEntity(request);
         return userRepository.save(userEntity);
     }
 
-    public Optional<UserEntity> updateUser(UserEntity user, Long id) {
+    public Optional<UserEntity> updateUser(UserRequest request, Long id) {
         return userRepository
             .findById(id)
-            .map(existing -> {
-                existing.setUsername(user.getUsername());
-                existing.setEmail(user.getEmail());
-                return userRepository.save(existing);
+            .map(existingUser -> {
+                // MapStruct prende i dati da 'request' e li copia dentro 'existingUser'
+                // Solo i campi che matchano (username, email, password) vengono aggiornati.
+                userMapper.updateUserFromRequest(request, existingUser);
+                return userRepository.save(existingUser);
             });
     }
 
