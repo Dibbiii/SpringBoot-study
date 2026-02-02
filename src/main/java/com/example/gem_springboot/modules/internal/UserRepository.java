@@ -1,6 +1,5 @@
-package com.example.gem_springboot.repositories;
+package com.example.gem_springboot.modules.internal;
 
-import com.example.gem_springboot.models.entities.UserEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

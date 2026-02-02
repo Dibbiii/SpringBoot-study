@@ -1,7 +1,9 @@
-package com.example.gem_springboot.models.entities;
+package com.example.gem_springboot.modules.internal;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -31,7 +33,7 @@ public class UserEntity {
     private String email;
 
     @Column(nullable = false)
-    @JsonIgnore // così Jackson quando manda il JSON al frontend salta questo campo
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY) // così Jackson quando manda il JSON al frontend salta questo campo
     private String password;
 
     @Column(name = "created_at")

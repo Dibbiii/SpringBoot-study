@@ -1,11 +1,8 @@
-package com.example.gem_springboot.services;
-
-import com.example.gem_springboot.models.dto.UserResponse;
-import com.example.gem_springboot.models.entities.UserEntity;
-import com.example.gem_springboot.repositories.UserRepository;
+package com.example.gem_springboot.modules.users;
 
 import lombok.RequiredArgsConstructor;
-
+import com.example.gem_springboot.modules.internal.UserEntity;
+import com.example.gem_springboot.modules.internal.UserRepository;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

@@ -1,14 +1,8 @@
-package com.example.gem_springboot.controller;
+package com.example.gem_springboot.modules.users;
 
-import com.example.gem_springboot.models.dto.UserResponse;
-import com.example.gem_springboot.models.entities.UserEntity;
-import com.example.gem_springboot.services.UserService;
-
+import com.example.gem_springboot.modules.internal.UserEntity;
 import lombok.RequiredArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
