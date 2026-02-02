@@ -10,7 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Service; 
+import com.example.gem_springboot.config.DuplicateResourceException;
 
 @RequiredArgsConstructor
 @Service
@@ -62,10 +63,14 @@ public class UserService {
 
     public UserResponse createUser(UserRequest request) {
         if (userRepository.existsByUsername(request.username())) {
-            throw new RuntimeException("Lo username è già in uso");
+            throw new DuplicateResourceException(
+                "Username already exists: " + request.username()
+            );
         }
         if (userRepository.existsByEmail(request.email())) {
-            throw new RuntimeException("Email already exists");
+            throw new DuplicateResourceException(
+                "Username already exists: " + request.username()
+            );
         }
         UserEntity entity = userMapper.toEntity(request);
         entity = userRepository.save(entity);
@@ -84,7 +89,9 @@ public class UserService {
                     !existingUser.getUsername().equals(request.username()) &&
                     userRepository.existsByUsername(request.username())
                 ) {
-                    throw new RuntimeException("Lo username è già in uso");
+                    throw new DuplicateResourceException(
+                        "Username already exists: " + request.username()
+                    );
                 }
 
                 // Controllo email solo se è cambiata
@@ -92,7 +99,9 @@ public class UserService {
                     !existingUser.getEmail().equals(request.email()) &&
                     userRepository.existsByEmail(request.email())
                 ) {
-                    throw new RuntimeException("L'email è già in uso");
+                    throw new DuplicateResourceException(
+                        "Email already exists: " + request.username()
+                    );
                 }
 
                 userMapper.updateUserFromRequest(request, existingUser);
