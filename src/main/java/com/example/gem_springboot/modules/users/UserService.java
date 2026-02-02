@@ -1,9 +1,10 @@
 package com.example.gem_springboot.modules.users;
 
-import lombok.RequiredArgsConstructor;
 import com.example.gem_springboot.modules.users.internal.UserEntity;
+import com.example.gem_springboot.modules.users.internal.UserMapper;
 import com.example.gem_springboot.modules.users.internal.UserRepository;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     public UserResponse findAllPaginated(
         String filter,
@@ -55,14 +57,15 @@ public class UserService {
         return userRepository.findById(id);
     }
 
-    public UserEntity createUser(UserEntity user) {
+    public UserEntity createUser(UserRequest request) {
         // Controllo duplicati email
-        if (userRepository.existsByEmail(user.getEmail())) {
+        if (userRepository.existsByEmail(request.email())) {
             throw new RuntimeException(
-                "Email already exists: " + user.getEmail()
+                "Email already exists: " + request.email()
             );
         }
-        return userRepository.save(user);
+        UserEntity userEntity = userMapper.toEntity(request); // uso il mapper per creare l'entità dai dati puliti
+        return userRepository.save(userEntity);
     }
 
     public Optional<UserEntity> updateUser(UserEntity user, Long id) {
