@@ -3,6 +3,7 @@ package com.example.gem_springboot.modules.users;
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+// DTO di output -> è ciò che viene restituito fuori da springboot a chiunque esegua le api
 public record UserResponse(
     Long id,
     String username,

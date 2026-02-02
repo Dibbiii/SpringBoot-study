@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import jakarta.validation.Valid;
 
 @RequiredArgsConstructor
 @RestController
@@ -36,13 +37,13 @@ public class UsersController {
     }
 
     @PostMapping
-    public UserResponse createUser(@RequestBody UserRequest request) {
+    public UserResponse createUser(@RequestBody @Valid UserRequest request) {
         return userService.createUser(request);
     }
 
     @PutMapping("/{id}")
     public UserResponse updateUser(
-        @RequestBody UserRequest request,
+        @RequestBody @Valid UserRequest request,
         @PathVariable Long id
     ) {
         return userService.updateUser(request, id).orElse(null);
