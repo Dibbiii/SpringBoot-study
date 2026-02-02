@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 03-add-unique-username
+      author: alessandra
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        # Rimuovi duplicati mantenendo solo il primo username
+        - sql:
+            sql: |
+              DELETE FROM users
+              WHERE id NOT IN (
+                SELECT MIN(id)
+                FROM users
+                GROUP BY username
+              )
+        # Aggiungi il constraint UNIQUE
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: username
+            constraintName: uk_users_username

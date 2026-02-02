@@ -61,6 +61,9 @@ public class UserService {
     }
 
     public UserResponse createUser(UserRequest request) {
+        if (userRepository.existsByUsername(request.username())) {
+            throw new RuntimeException("Lo username è già in uso");
+        }
         if (userRepository.existsByEmail(request.email())) {
             throw new RuntimeException("Email already exists");
         }
@@ -73,9 +76,25 @@ public class UserService {
     public Optional<UserResponse> updateUser(UserRequest request, Long id) {
         return userRepository
             .findById(id)
+            // MapStruct prende i dati da 'request' e li copia dentro 'existingUser'
+            // Solo i campi che matchano (username, email, password) vengono aggiornati.
             .map(existingUser -> {
-                // MapStruct prende i dati da 'request' e li copia dentro 'existingUser'
-                // Solo i campi che matchano (username, email, password) vengono aggiornati.
+                // Controllo username solo se è cambiato
+                if (
+                    !existingUser.getUsername().equals(request.username()) &&
+                    userRepository.existsByUsername(request.username())
+                ) {
+                    throw new RuntimeException("Lo username è già in uso");
+                }
+
+                // Controllo email solo se è cambiata
+                if (
+                    !existingUser.getEmail().equals(request.email()) &&
+                    userRepository.existsByEmail(request.email())
+                ) {
+                    throw new RuntimeException("L'email è già in uso");
+                }
+
                 userMapper.updateUserFromRequest(request, existingUser);
                 UserEntity saved = userRepository.save(existingUser);
                 return userMapper.toDto(saved);

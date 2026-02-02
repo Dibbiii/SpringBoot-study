@@ -22,7 +22,7 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY) //Dice che l'id viene generato dal DB tramite auto increment
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false, unique = true)
