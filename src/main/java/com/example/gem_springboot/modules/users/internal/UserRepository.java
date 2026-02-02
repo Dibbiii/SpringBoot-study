@@ -1,4 +1,4 @@
-package com.example.gem_springboot.modules.internal;
+package com.example.gem_springboot.modules.users.internal;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

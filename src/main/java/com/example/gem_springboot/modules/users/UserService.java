@@ -1,8 +1,8 @@
 package com.example.gem_springboot.modules.users;
 
 import lombok.RequiredArgsConstructor;
-import com.example.gem_springboot.modules.internal.UserEntity;
-import com.example.gem_springboot.modules.internal.UserRepository;
+import com.example.gem_springboot.modules.users.internal.UserEntity;
+import com.example.gem_springboot.modules.users.internal.UserRepository;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;

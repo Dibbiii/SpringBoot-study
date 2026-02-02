@@ -1,6 +1,6 @@
 package com.example.gem_springboot.modules.users;
 
-import com.example.gem_springboot.modules.internal.UserEntity;
+import com.example.gem_springboot.modules.users.internal.UserEntity;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.web.bind.annotation.DeleteMapping;
