@@ -1,5 +1,6 @@
 package com.example.gem_springboot.modules.users;
 
+import com.example.gem_springboot.config.DuplicateResourceException;
 import com.example.gem_springboot.modules.users.internal.UserEntity;
 import com.example.gem_springboot.modules.users.internal.UserMapper;
 import com.example.gem_springboot.modules.users.internal.UserRepository;
@@ -10,8 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service; 
-import com.example.gem_springboot.config.DuplicateResourceException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
@@ -19,6 +20,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
     public UsersList findAllPaginated(
         String filter,
@@ -69,10 +71,11 @@ public class UserService {
         }
         if (userRepository.existsByEmail(request.email())) {
             throw new DuplicateResourceException(
-                "Username already exists: " + request.username()
+                "Email already exists: " + request.email()
             );
         }
         UserEntity entity = userMapper.toEntity(request);
+        entity.setPassword(passwordEncoder.encode(request.password()));
         entity = userRepository.save(entity);
         // Converto in Dto
         return userMapper.toDto(entity);
@@ -100,7 +103,7 @@ public class UserService {
                     userRepository.existsByEmail(request.email())
                 ) {
                     throw new DuplicateResourceException(
-                        "Email already exists: " + request.username()
+                        "Email already exists: " + request.email()
                     );
                 }
 
