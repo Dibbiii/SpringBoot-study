@@ -108,6 +108,9 @@ public class UserService {
                 }
 
                 userMapper.updateUserFromRequest(request, existingUser);
+                existingUser.setPassword(
+                    passwordEncoder.encode(request.password())
+                );
                 UserEntity saved = userRepository.save(existingUser);
                 return userMapper.toDto(saved);
             });

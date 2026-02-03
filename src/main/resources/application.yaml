@@ -67,3 +67,10 @@ course:
     - "Modular Architecture"
     - "Cloud Native"
   difficulty-level: 10
+
+# Configurazione Custom per la sicurezza
+security:
+  jwt:
+    # Questa chiave deve essere di almeno 32 caratteri per essere sicura
+    secret-key: "chiave-segreta-springboot-study-lessons"
+    expiration-time: 3600000 # 1 ora in millisecondi

@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
+    java.util.Optional<UserEntity> findByEmail(String email);
 
     @Query(
         //Seleziona gli oggetti UserEntity (alias 'u') filtrando i risultati in lower case
