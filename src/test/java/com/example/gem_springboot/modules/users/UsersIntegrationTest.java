@@ -3,16 +3,27 @@ package com.example.gem_springboot.modules.users;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.example.gem_springboot.IntegrationTestBase;
+import com.example.gem_springboot.modules.users.internal.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
 
-// Estendiamo la base così abbiamo il DB Docker già pronto
 class UsersIntegrationTest extends IntegrationTestBase {
 
+    // INIEZIONE DIRETTA DEL REPO PER PULIZIA
+    // Non lo usiamo per testare (usiamo WebTestClient per quello),
+    // ma solo per preparare il terreno (Pattern: Test Fixture).
     @Autowired
-    private WebTestClient webTestClient; // Client HTTP per fare le chiamate al nostro server di test
+    private UserRepository userRepository;
+
+    @BeforeEach // Eseguito PRIMA di ogni singolo @Test
+    void setUp() {
+        // CANCELLA TUTTO.
+        // Fondamentale perché il container Docker è condiviso (static)
+        // e vogliamo partire da uno stato pulito ("Tabula Rasa").
+        userRepository.deleteAll();
+    }
 
     @Test
     void shouldCreateUser_Login_AndGetProfile() {
@@ -23,22 +34,22 @@ class UsersIntegrationTest extends IntegrationTestBase {
 
         UserRequest signupRequest = new UserRequest(username, email, password);
 
-        // CHIAMATA 1: Registrazione (POST /users)
+        // 1. REGISTRAZIONE
         webTestClient
             .post()
             .uri("/users")
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(signupRequest)
-            .exchange() // Esegui la richiesta
+            .exchange()
             .expectStatus()
-            .isOk() // Mi aspetto 200 OK
+            .isOk()
             .expectBody()
             .jsonPath("$.username")
-            .isEqualTo(username) // Verifico il JSON di risposta
+            .isEqualTo(username)
             .jsonPath("$.email")
             .isEqualTo(email);
 
-        // CHIAMATA 2: Login (POST /auth/login)
+        // 2. LOGIN
         LoginRequest loginRequest = new LoginRequest(username, password);
 
         String token = webTestClient
@@ -49,20 +60,25 @@ class UsersIntegrationTest extends IntegrationTestBase {
             .exchange()
             .expectStatus()
             .isOk()
-            .returnResult(String.class) // Prendo il body come stringa (il token)
+            .returnResult(String.class)
             .getResponseBody()
             .blockFirst();
 
-        assertThat(token).isNotNull().isNotEmpty(); // Verifico che il token esista
+        assertThat(token).isNotNull().isNotEmpty();
 
-        // CHIAMATA 3: Accesso Protetto (GET /users o un endpoint protetto)
-        // Nota: Assumiamo che GET /users sia protetto.
+        // 3. ACCESSO PROTETTO
         webTestClient
             .get()
-            .uri("/users")
-            .header("Authorization", "Bearer " + token) // Uso il token
+            .uri(
+                "/users/" +
+                    userRepository.findByUsername(username).get().getId()
+            ) // Uso ID dinamico
+            .header("Authorization", "Bearer " + token)
             .exchange()
             .expectStatus()
-            .isOk(); // Se il token funziona, devo ricevere 200 OK, non 403
+            .isOk()
+            .expectBody()
+            .jsonPath("$.username")
+            .isEqualTo(username);
     }
 }

@@ -1,40 +1,5 @@
 {
-  "lsp": {
-    "jdtls": {
-      "initialization_options": {
-        "bundles": [],
-      },
-      "settings": {
-        "java": {
-          "home": "C:\\Users\\Alessandra\\Downloads\\Java 25\\jdk-25.0.2",
-          "configuration": {
-            "updateBuildConfiguration": "automatic",
-          },
-          "import": {
-            "gradle": {
-              "enabled": false,
-            },
-            "maven": {
-              "enabled": true,
-            },
-          },
-          "autobuild": {
-            "enabled": true,
-          },
-        },
-      },
-    },
-    "java": {
-      "settings": {
-        "java": {
-          "home": "C:\\Users\\Alessandra\\Downloads\\Java 25\\jdk-25.0.2",
-        },
-      },
-    },
-  },
   "languages": {
-    "Java": {
-      "language_servers": ["jdtls"],
-    },
+    "Java": {},
   },
 }
