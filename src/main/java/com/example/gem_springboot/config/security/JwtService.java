@@ -28,11 +28,9 @@ public class JwtService {
 
     // Trasforma la stringa della chiave in un oggetto crittografico SecretKey
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey); // O usa .getBytes() se non è Base64
-        // Per semplicità nel corso usiamo getBytes se la chiave nel yaml è testo semplice:
-        // return Keys.hmacShaKeyFor(secretKey.getBytes());
-        // Ma per fare i professionisti, usiamo una chiave decodificata correttamente se fosse Base64.
-        // Visto che nel yaml abbiamo messo testo semplice, usiamo questo trucco sicuro:
-        return Keys.hmacShaKeyFor(secretKey.getBytes());
+        // Decodifica la stringa Base64 in byte reali
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        // Usa i byte decodificati per generare la chiave
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
