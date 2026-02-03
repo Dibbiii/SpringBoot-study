@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -64,6 +65,18 @@ public class GlobalExceptionHandler {
         problemDetail.setType(
             URI.create("https://example.com/errors/duplicate")
         );
+        return problemDetail;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ProblemDetail handleAuthenticationException(
+        AuthenticationException ex
+    ) {
+        ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(
+            HttpStatus.UNAUTHORIZED, // 401 Unauthorized
+            "Credenziali non valide" // Messaggio generico per sicurezza
+        );
+        problemDetail.setTitle("Authentication Failed");
         return problemDetail;
     }
 }

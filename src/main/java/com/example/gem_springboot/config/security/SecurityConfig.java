@@ -1,6 +1,7 @@
 package com.example.gem_springboot.config.security;
 
 import com.example.gem_springboot.modules.users.internal.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -15,14 +16,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-        throws Exception {
+    public SecurityFilterChain securityFilterChain(
+        HttpSecurity http,
+        JwtAuthenticationFilter jwtAuthFilter
+    ) throws Exception {
         http
             // Disabilito CSRF (Cross-Site Request Forgery)
             // Perché nelle API REST Stateless non serve e bloccherebbe le POST da Postman.
@@ -47,6 +52,10 @@ public class SecurityConfig {
                     // Tutto il resto richiede autenticazione
                     .anyRequest()
                     .authenticated()
+            )
+            .addFilterBefore(
+                jwtAuthFilter,
+                UsernamePasswordAuthenticationFilter.class
             );
 
         return http.build();
@@ -70,9 +79,9 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(
         UserRepository userRepository
     ) {
-        return email ->
+        return username ->
             userRepository
-                .findByEmail(email)
+                .findByUsername(username)
                 .orElseThrow(() ->
                     new UsernameNotFoundException("User not found")
                 );

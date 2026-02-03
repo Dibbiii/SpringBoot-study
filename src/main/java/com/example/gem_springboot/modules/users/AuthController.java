@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/auth")
@@ -19,11 +21,14 @@ public class AuthController {
         // Tenta l'autenticazione (Spring controlla password criptata vs DB)
         // Se fallisce lancia automaticamente un'eccezione (403/401)
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(request.email(), request.password())
+            new UsernamePasswordAuthenticationToken(
+                request.username(),
+                request.password()
+            )
         );
 
         // Se siamo qui la password è giusta -> Generiamo il token.
-        // Nota: stiamo usando l'email come subject del token
-        return jwtService.generateToken(request.email());
+        // Nota: stiamo usando l'username come subject del token
+        return jwtService.generateToken(request.username());
     }
 }
