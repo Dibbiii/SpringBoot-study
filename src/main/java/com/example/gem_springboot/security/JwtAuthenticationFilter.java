@@ -1,9 +1,10 @@
-package com.example.gem_springboot.config.security;
+package com.example.gem_springboot.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,8 +14,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -29,7 +28,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         @NonNull HttpServletResponse response,
         @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-
         // Cerco l'header Authorization
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
@@ -50,20 +48,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         userEmail = jwtService.extractUsername(jwt);
 
         // Se ho l'email e l'utente non è già autenticato nel contesto attuale
-        if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            
+        if (
+            userEmail != null &&
+            SecurityContextHolder.getContext().getAuthentication() == null
+        ) {
             // Cerco i dettagli dell'utente dal DB
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
+            UserDetails userDetails =
+                this.userDetailsService.loadUserByUsername(userEmail);
 
-            // Valido il token 
+            // Valido il token
             if (jwtService.isTokenValid(jwt, userDetails)) {
-                
                 // Creo l'oggetto di Autenticazione per Spring Security
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                    userDetails,
-                    null, // Non abbiamo credenziali (password) da passare qui
-                    userDetails.getAuthorities()
-                );
+                UsernamePasswordAuthenticationToken authToken =
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null, // Non abbiamo credenziali (password) da passare qui
+                        userDetails.getAuthorities()
+                    );
 
                 // Aggiungo dettagli extra (es. indirizzo IP della richiesta)
                 authToken.setDetails(
@@ -75,7 +76,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        
+
         // Continuo con il prossimo filtro della catena
         filterChain.doFilter(request, response);
     }

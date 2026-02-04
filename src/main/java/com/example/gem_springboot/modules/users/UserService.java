@@ -1,9 +1,9 @@
 package com.example.gem_springboot.modules.users;
 
-import com.example.gem_springboot.config.DuplicateResourceException;
 import com.example.gem_springboot.modules.users.internal.UserEntity;
 import com.example.gem_springboot.modules.users.internal.UserMapper;
 import com.example.gem_springboot.modules.users.internal.UserRepository;
+import com.example.gem_springboot.shared.DuplicateResourceException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

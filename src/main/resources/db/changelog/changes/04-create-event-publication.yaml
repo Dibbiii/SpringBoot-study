@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 04-create-event-publication
+      author: alessandra
+      changes:
+        - createTable:
+            tableName: EVENT_PUBLICATION
+            columns:
+              - column:
+                  name: ID
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: COMPLETION_DATE
+                  type: timestamp(6) with time zone
+              - column:
+                  name: EVENT_TYPE
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: LISTENER_ID
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PUBLICATION_DATE
+                  type: timestamp(6) with time zone
+                  constraints:
+                    nullable: false
+              - column:
+                  name: SERIALIZED_EVENT
+                  type: varchar(4000)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: STATUS
+                  type: varchar(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: COMPLETION_ATTEMPTS
+                  type: integer
+                  constraints:
+                    nullable: false
+                  defaultValueNumeric: 0
+              - column:
+                  name: LAST_RESUBMISSION_DATE
+                  type: timestamp(6) with time zone

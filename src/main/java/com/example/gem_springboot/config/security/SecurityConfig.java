@@ -1,6 +1,6 @@
 package com.example.gem_springboot.config.security;
 
-import com.example.gem_springboot.modules.users.internal.UserRepository;
+import com.example.gem_springboot.security.JwtAuthenticationFilter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -85,7 +85,7 @@ public class SecurityConfig {
             List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
         );
 
-        // Definisco quali header sono permessi 
+        // Definisco quali header sono permessi
         // Authorization serve per il Bearer Token
         // Content-Type serve per il JSON
         configuration.setAllowedHeaders(
@@ -113,15 +113,6 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    @Bean
-    public UserDetailsService userDetailsService(
-        UserRepository userRepository
-    ) {
-        return username ->
-            userRepository
-                .findByUsername(username)
-                .orElseThrow(() ->
-                    new UsernameNotFoundException("User not found")
-                );
-    }
+    // UserDetailsService è ora fornito da UserDetailsServiceImpl nel modulo users
+    // Non serve più definirlo qui, Spring lo troverà automaticamente tramite @Service
 }

@@ -1,5 +1,6 @@
 package com.example.gem_springboot.config;
 
+import com.example.gem_springboot.shared.DuplicateResourceException;
 import java.net.URI;
 import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;

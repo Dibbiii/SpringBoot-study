@@ -1,4 +1,4 @@
-package com.example.gem_springboot.config;
+package com.example.gem_springboot.modules.posts;
 
 import com.example.gem_springboot.modules.posts.PostClient;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +22,7 @@ public class ClientConfig {
         // Configuro il WebClient base con l'URL del servizio esterno
         // (JsonPlaceholder è un'API fake gratuita per test)
         WebClient webClient = builder
-            .baseUrl("https://jsonplaceholder.typicodeSbagliatoTest.com")
+            .baseUrl("https://jsonplaceholder.typicode.com")
             .build();
 
         // Creo l'adattatore che fa da ponte tra WebClient e le interfacce dichiarative

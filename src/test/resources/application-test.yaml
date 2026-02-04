@@ -1,0 +1,59 @@
+spring:
+  application:
+    name: SpringMasterCourse-Test
+
+  # Configurazione Virtual Threads
+  threads:
+    virtual:
+      enabled: true
+
+  # NON configurare datasource qui!
+  # @ServiceConnection in IntegrationTestBase lo fa automaticamente
+
+  # Configurazione JPA e Hibernate
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    hibernate:
+      # Use VALIDATE for tests - Liquibase will manage the schema
+      ddl-auto: validate
+
+  # Abilita Liquibase nei test per creare le tabelle (incluso EVENT_PUBLICATION)
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+  # Configurazione Jackson
+  jackson:
+    default-property-inclusion: non_null
+
+# Configurazione del Server per i test
+server:
+  port: 0 # Porta random
+
+# Configurazione del Logging per i test
+logging:
+  level:
+    org.springframework.web: INFO
+    com.example.gem_springboot: DEBUG
+    org.testcontainers: INFO
+    com.github.dockerjava: WARN
+    org.hibernate.SQL: DEBUG
+
+# Configurazione Custom per la sicurezza
+security:
+  jwt:
+    secret-key: "dGVzdC1zZWNyZXQta2V5LWZvci1pbnRlZ3JhdGlvbi10ZXN0cy1tdXN0LWJlLWxvbmctZW5vdWdo"
+    expiration-time: 3600000
+
+# Configurazione del corso (test)
+course:
+  name: "Master Spring Boot 4 - Test"
+  welcome-message: "Test Environment"
+  max-students: 10
+  features:
+    - "Testing"
+  difficulty-level: 10

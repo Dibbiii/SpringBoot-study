@@ -1,4 +1,4 @@
-package com.example.gem_springboot.config.security;
+package com.example.gem_springboot.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

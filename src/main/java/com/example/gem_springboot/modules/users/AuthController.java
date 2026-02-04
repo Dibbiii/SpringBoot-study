@@ -1,6 +1,6 @@
 package com.example.gem_springboot.modules.users;
 
-import com.example.gem_springboot.config.security.JwtService;
+import com.example.gem_springboot.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

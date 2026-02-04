@@ -3,6 +3,7 @@ package com.example.gem_springboot.modules.notifications;
 import com.example.gem_springboot.modules.users.UserCreatedEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.modulith.events.ApplicationModuleListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 @Slf4j // Genera automaticamente un campo logger nella classe durante la compilazione -> evita codice boilerplate per la creazione dei logger
@@ -11,6 +12,8 @@ public class NotificationListener {
 
     // @ApplicationModuleListener è un'annotazione potenziata di Spring Modulith.
     // Garantisce che il listener giri in una transazione separata e (opzionalmente) asincrona.
+    // @Async rende l'esecuzione veramente asincrona, liberando subito il thread chiamante
+    @Async
     @ApplicationModuleListener
     void onUserCreated(UserCreatedEvent event) throws InterruptedException {
         // Simulo un'operazione lenta (es. invio email SMTP)
