@@ -2,9 +2,11 @@ package com.example.gem_springboot.modules.users;
 
 import com.example.gem_springboot.modules.posts.PostClient;
 import com.example.gem_springboot.modules.posts.PostDTO;
+import com.example.gem_springboot.modules.posts.PostService;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,6 +25,7 @@ public class UsersController {
 
     private final UserService userService; // inietto UserService
     private final PostClient postClient;
+    private final PostService postService;
 
     @GetMapping
     public UsersList findAllPaginated(
@@ -60,12 +64,6 @@ public class UsersController {
 
     @GetMapping("/{id}/posts")
     public List<PostDTO> getUserPosts(@PathVariable Long id) {
-        // Logica architetturale:
-        // 1. Ricevo richiesta dal Frontend
-        // 2. Uso PostClient per chiamare JsonPlaceholder (I/O Network)
-        // 3. Poiché uso Virtual Threads, questo thread si "parcheggia" mentre aspetta la risposta,
-        //    liberando la CPU per servire altre richieste Angular.
-        // 4. Ricevo la risposta e la giro al Frontend.
-        return postClient.getPostsByUser(id);
+        return postService.getPostsWithRetry(id);
     }
 }

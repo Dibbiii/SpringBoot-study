@@ -22,7 +22,7 @@ public class ClientConfig {
         // Configuro il WebClient base con l'URL del servizio esterno
         // (JsonPlaceholder è un'API fake gratuita per test)
         WebClient webClient = builder
-            .baseUrl("https://jsonplaceholder.typicode.com")
+            .baseUrl("https://jsonplaceholder.typicodeSbagliatoTest.com")
             .build();
 
         // Creo l'adattatore che fa da ponte tra WebClient e le interfacce dichiarative
