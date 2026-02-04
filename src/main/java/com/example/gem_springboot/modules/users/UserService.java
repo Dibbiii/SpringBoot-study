@@ -7,12 +7,14 @@ import com.example.gem_springboot.modules.users.internal.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -21,6 +23,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher events;
 
     public UsersList findAllPaginated(
         String filter,
@@ -63,6 +66,7 @@ public class UserService {
         return userRepository.findById(id).map(userMapper::toDto);
     }
 
+    @Transactional
     public UserResponse createUser(UserRequest request) {
         if (userRepository.existsByUsername(request.username())) {
             throw new DuplicateResourceException(
@@ -77,6 +81,15 @@ public class UserService {
         UserEntity entity = userMapper.toEntity(request);
         entity.setPassword(passwordEncoder.encode(request.password()));
         entity = userRepository.save(entity);
+
+        events.publishEvent(
+            new UserCreatedEvent(
+                entity.getId(),
+                entity.getEmail(),
+                entity.getUsername()
+            )
+        );
+
         // Converto in Dto
         return userMapper.toDto(entity);
     }
