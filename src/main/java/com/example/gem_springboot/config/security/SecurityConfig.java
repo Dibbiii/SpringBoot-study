@@ -1,6 +1,7 @@
 package com.example.gem_springboot.config.security;
 
 import com.example.gem_springboot.modules.users.internal.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +18,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -29,6 +33,9 @@ public class SecurityConfig {
         JwtAuthenticationFilter jwtAuthFilter
     ) throws Exception {
         http
+            // Abilito il Cors
+            // Spring cercherà un bean chiamato "corsConfigurationSource" (definito sotto)
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             // Disabilito CSRF (Cross-Site Request Forgery)
             // Perché nelle API REST Stateless non serve e bloccherebbe le POST da Postman.
             .csrf(AbstractHttpConfigurer::disable)
@@ -43,6 +50,10 @@ public class SecurityConfig {
             // Regole di Accesso (Authorization)
             .authorizeHttpRequests(auth ->
                 auth
+                    // Permetto OPTIONS (Preflight) esplicitamente a tutti, anche se CORS lo gestisce
+                    // è buona norma di difesa in profondità
+                    .requestMatchers(HttpMethod.OPTIONS, "/**")
+                    .permitAll()
                     // Permetto a tutti di registrarsi (POST /users)
                     .requestMatchers(HttpMethod.POST, "/users")
                     .permitAll()
@@ -59,6 +70,33 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+
+    // Definisco le policy cors
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        // Permetto il frontend in angular
+        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+
+        // Gli do la possibilità di fare queste chiamate
+        configuration.setAllowedMethods(
+            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        );
+
+        // Definisco quali header sono permessi 
+        // Authorization serve per il Bearer Token
+        // Content-Type serve per il JSON
+        configuration.setAllowedHeaders(
+            List.of("Authorization", "Content-Type")
+        );
+
+        // Applico queste regole a TUTTI gli endpoint (/**)
+        UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     // Uso BCrypt come algoritmo di hashing per le password
