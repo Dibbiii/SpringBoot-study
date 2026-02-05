@@ -51,6 +51,19 @@ spring:
   cache:
     type: redis
 
+  
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: health, info, prometheus # Espone l'endpoint per Prometheus
+    metrics:
+      tags:
+        application: gem-springboot # Etichetta per riconoscere l'app nei grafici
+      distribution:
+        percentiles-histogram:
+          http.server.requests: true # Abilita istogrammi per calcolare i percentili (P95, P99)
+          
 # Configurazione del Server
 server:
   port: 8080
