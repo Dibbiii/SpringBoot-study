@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Estraggo il token togliendo la parte di Baerer che sono 7 caratteri
-        jwt = authHeader.substring(7);
+        jwt = authHeader.substring(7).trim(); // Trim rimuove eventuali spazi vuoti accidentali
 
         // Estraggo l'email dal token
         // (Qui potrebbe lanciare eccezione se il token è scaduto o manomesso)

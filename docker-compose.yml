@@ -9,5 +9,18 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # Persistenza: così se spengo il container, i dati restano salvati in questa cartella locale
       - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - gem-network
+  
+  redis:
+    image: redis:alpine
+    container_name: gem_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - gem-network
+
+networks:
+  gem-network:
+    driver: bridge

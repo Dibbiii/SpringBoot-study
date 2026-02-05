@@ -7,6 +7,8 @@ import com.example.gem_springboot.shared.DuplicateResourceException;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -62,11 +64,12 @@ public class UserService {
         return new UsersList(dtos, pageResult.getTotalElements());
     }
 
+    @Cacheable(value = "users", key = "#id")
     public Optional<UserResponse> findById(Long id) {
         return userRepository.findById(id).map(userMapper::toDto);
     }
 
-    @Transactional
+    @Transactional // Garantisce che l'operazione sia atomica
     public UserResponse createUser(UserRequest request) {
         if (userRepository.existsByUsername(request.username())) {
             throw new DuplicateResourceException(
@@ -94,6 +97,8 @@ public class UserService {
         return userMapper.toDto(entity);
     }
 
+    @Transactional 
+    @CacheEvict(value = "users", key = "#id") // Cancella l'utente modificato dalla cache
     public Optional<UserResponse> updateUser(UserRequest request, Long id) {
         return userRepository
             .findById(id)
@@ -129,6 +134,8 @@ public class UserService {
             });
     }
 
+    @Transactional 
+    @CacheEvict(value = "users", key = "#id")
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);

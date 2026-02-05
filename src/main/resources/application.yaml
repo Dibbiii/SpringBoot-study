@@ -33,6 +33,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+    drop-first: true
 
   # Configurazione Jackson (json)
   jackson:
@@ -40,6 +41,15 @@ spring:
     default-property-inclusion: non_null
     # Opzionale: Se vuoi che TUTTI i campi siano snake_case (es. created_at) invece di camelCase (createdAt)
     # property-naming-strategy: SNAKE_CASE
+
+  # Configurazione Redis
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 60000 # Timeout di 1 minuto se Redis non risponde
+  cache:
+    type: redis
 
 # Configurazione del Server
 server:

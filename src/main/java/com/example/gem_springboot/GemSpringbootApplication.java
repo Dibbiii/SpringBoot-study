@@ -9,11 +9,13 @@ import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.retry.annotation.EnableRetry;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.cache.annotation.EnableCaching;
 
 @SpringBootApplication
 @ConfigurationPropertiesScan
 @EnableRetry
 @EnableAsync
+@EnableCaching
 public class GemSpringbootApplication {
 
     public static void main(String[] args) {
