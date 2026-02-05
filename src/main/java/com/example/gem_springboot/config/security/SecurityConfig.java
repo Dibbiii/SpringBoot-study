@@ -39,6 +39,10 @@ public class SecurityConfig {
             // Disabilito CSRF (Cross-Site Request Forgery)
             // Perché nelle API REST Stateless non serve e bloccherebbe le POST da Postman.
             .csrf(AbstractHttpConfigurer::disable)
+            // Permetti gli header necessari per WebSocket upgrade
+            .headers(headers ->
+                headers.frameOptions(frame -> frame.sameOrigin())
+            )
             // Stateless Session Management
             // Dico a Spring di non creare mai una HttpSession in RAM
             // Voglio che ogni richiesta sia indipendente (usando poi il JWT).
@@ -63,6 +67,9 @@ public class SecurityConfig {
                     // Permetto accesso agli endpoint di Actuator (Prometheus, Health, ecc.)
                     .requestMatchers("/actuator/**")
                     .permitAll()
+                    // Permetto la connessione WebSocket
+                    .requestMatchers("/ws-gem/**")
+                    .permitAll()
                     // Tutto il resto richiede autenticazione
                     .anyRequest()
                     .authenticated()
@@ -80,20 +87,43 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Permetto il frontend in angular
-        configuration.setAllowedOrigins(List.of("http://localhost:4200"));
+        // Permetto il frontend in angular e anche localhost diretto per i test
+        configuration.setAllowedOrigins(
+            List.of(
+                "http://localhost:4200",
+                "http://localhost:8080",
+                "http://127.0.0.1:8080"
+            )
+        );
+
+        // Permetto anche file:// per i test HTML locali
+        configuration.setAllowedOriginPatterns(List.of("*"));
 
         // Gli do la possibilità di fare queste chiamate
         configuration.setAllowedMethods(
-            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")
+            List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD")
         );
 
         // Definisco quali header sono permessi
         // Authorization serve per il Bearer Token
         // Content-Type serve per il JSON
+        // Header WebSocket necessari per l'upgrade
         configuration.setAllowedHeaders(
-            List.of("Authorization", "Content-Type")
+            List.of(
+                "Authorization",
+                "Content-Type",
+                "Upgrade",
+                "Connection",
+                "Sec-WebSocket-Key",
+                "Sec-WebSocket-Version",
+                "Sec-WebSocket-Extensions",
+                "Sec-WebSocket-Accept",
+                "Sec-WebSocket-Protocol"
+            )
         );
+
+        // Permetti credentials (importante per CORS con WebSocket)
+        configuration.setAllowCredentials(true);
 
         // Applico queste regole a TUTTI gli endpoint (/**)
         UrlBasedCorsConfigurationSource source =

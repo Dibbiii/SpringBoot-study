@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test WebSocket STOMP</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .messages {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin: 20px 0;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+        }
+        .message {
+            padding: 8px;
+            margin: 5px 0;
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            border-radius: 3px;
+        }
+        .timestamp {
+            color: #666;
+            font-size: 0.85em;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .disconnect-btn {
+            background-color: #f44336;
+        }
+        .disconnect-btn:hover {
+            background-color: #da190b;
+        }
+        .clear-btn {
+            background-color: #ff9800;
+        }
+        .clear-btn:hover {
+            background-color: #e68900;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Test WebSocket STOMP - Spring Boot</h1>
+
+        <div id="status" class="status disconnected">
+            ❌ Disconnesso
+        </div>
+
+        <div>
+            <button id="connectBtn" onclick="connect()">Connetti</button>
+            <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnetti</button>
+            <button class="clear-btn" onclick="clearMessages()">Pulisci Messaggi</button>
+        </div>
+
+        <h2>📨 Messaggi Ricevuti:</h2>
+        <div id="messages" class="messages">
+            <p style="color: #999;">Nessun messaggio ricevuto. Connettiti e crea un nuovo utente per vedere le notifiche...</p>
+        </div>
+
+        <h2>📝 Log:</h2>
+        <div id="log" class="messages">
+            <p style="color: #999;">Log di connessione...</p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
+    <script>
+        let stompClient = null;
+        let subscription = null;
+
+        function connect() {
+            addLog('🔄 Tentativo di connessione a ws://localhost:8080/ws-gem');
+
+            // Crea il client STOMP
+            stompClient = new StompJs.Client({
+                brokerURL: 'ws://localhost:8080/ws-gem',
+
+                // Header di connessione
+                connectHeaders: {
+                    // Puoi aggiungere header personalizzati qui se necessario
+                },
+
+                // Configurazione heartbeat
+                heartbeatIncoming: 10000,
+                heartbeatOutgoing: 10000,
+
+                // Callback quando la connessione è stabilita
+                onConnect: (frame) => {
+                    addLog('✅ Connesso al broker STOMP!');
+                    addLog('Session: ' + frame.headers['session']);
+                    addLog('Version: ' + frame.headers['version']);
+
+                    updateStatus(true);
+
+                    // Sottoscrivi al topic /topic/users
+                    subscription = stompClient.subscribe('/topic/users', (message) => {
+                        addLog('📩 Messaggio ricevuto dal topic /topic/users');
+                        showMessage(message.body);
+                    });
+
+                    addLog('📡 Sottoscritto a /topic/users con ID: ' + subscription.id);
+                },
+
+                // Callback per errori STOMP
+                onStompError: (frame) => {
+                    addLog('❌ Errore STOMP: ' + frame.headers['message']);
+                    addLog('Dettagli: ' + frame.body);
+                    updateStatus(false);
+                },
+
+                // Callback quando WebSocket si chiude
+                onWebSocketClose: (event) => {
+                    addLog('🔌 WebSocket chiuso. Code: ' + event.code + ', Reason: ' + event.reason);
+                    updateStatus(false);
+                },
+
+                // Callback per errori WebSocket
+                onWebSocketError: (event) => {
+                    addLog('❌ Errore WebSocket');
+                    console.error('WebSocket error:', event);
+                },
+
+                // Debug (opzionale, puoi commentarlo in produzione)
+                debug: (str) => {
+                    console.log('STOMP Debug:', str);
+                }
+            });
+
+            // Attiva la connessione
+            stompClient.activate();
+        }
+
+        function disconnect() {
+            if (stompClient !== null) {
+                addLog('🔄 Disconnessione in corso...');
+                stompClient.deactivate();
+                stompClient = null;
+                updateStatus(false);
+                addLog('✅ Disconnesso');
+            }
+        }
+
+        function updateStatus(connected) {
+            const statusDiv = document.getElementById('status');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = '✅ Connesso';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = '❌ Disconnesso';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+            }
+        }
+
+        function showMessage(messageBody) {
+            const messagesDiv = document.getElementById('messages');
+
+            // Rimuovi il messaggio placeholder se presente
+            if (messagesDiv.querySelector('p[style*="color: #999"]')) {
+                messagesDiv.innerHTML = '';
+            }
+
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+
+            const timestamp = new Date().toLocaleTimeString('it-IT');
+            messageElement.innerHTML = `
+                <div class="timestamp">${timestamp}</div>
+                <div>${messageBody}</div>
+            `;
+
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addLog(logMessage) {
+            const logDiv = document.getElementById('log');
+
+            // Rimuovi il messaggio placeholder se presente
+            if (logDiv.querySelector('p[style*="color: #999"]')) {
+                logDiv.innerHTML = '';
+            }
+
+            const logElement = document.createElement('div');
+            logElement.style.padding = '3px 0';
+            logElement.style.borderBottom = '1px solid #eee';
+
+            const timestamp = new Date().toLocaleTimeString('it-IT');
+            logElement.innerHTML = `<span class="timestamp">${timestamp}</span> - ${logMessage}`;
+
+            logDiv.appendChild(logElement);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '<p style="color: #999;">Nessun messaggio ricevuto...</p>';
+            addLog('🗑️ Messaggi puliti');
+        }
+
+        // Gestisci la chiusura della pagina
+        window.onbeforeunload = function() {
+            if (stompClient !== null) {
+                disconnect();
+            }
+        };
+    </script>
+</body>
+</html>

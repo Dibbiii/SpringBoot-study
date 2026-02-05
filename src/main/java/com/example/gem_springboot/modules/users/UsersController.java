@@ -34,7 +34,6 @@ public class UsersController {
         @RequestParam(defaultValue = "10") int limit,
         @RequestParam(defaultValue = "id") String sortBy,
         @RequestParam(defaultValue = "asc") String order,
-        @RequestParam(required = false) String q,
         UserFilter filter // Spring mappa automaticamente i valori di username e email dentro l'oggetto UserFilter
     ) {
         return userService.findAllPaginated(filter, sortBy, order, skip, limit);
