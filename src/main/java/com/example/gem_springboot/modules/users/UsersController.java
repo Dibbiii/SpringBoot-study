@@ -3,6 +3,7 @@ package com.example.gem_springboot.modules.users;
 import com.example.gem_springboot.modules.posts.PostClient;
 import com.example.gem_springboot.modules.posts.PostDTO;
 import com.example.gem_springboot.modules.posts.PostService;
+import com.example.gem_springboot.modules.users.UserFilter;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +34,10 @@ public class UsersController {
         @RequestParam(defaultValue = "10") int limit,
         @RequestParam(defaultValue = "id") String sortBy,
         @RequestParam(defaultValue = "asc") String order,
-        @RequestParam(required = false) String q
+        @RequestParam(required = false) String q,
+        UserFilter filter // Spring mappa automaticamente i valori di username e email dentro l'oggetto UserFilter
     ) {
-        return userService.findAllPaginated(q, sortBy, order, skip, limit);
+        return userService.findAllPaginated(filter, sortBy, order, skip, limit);
     }
 
     @GetMapping("/{id}")

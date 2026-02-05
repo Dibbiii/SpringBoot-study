@@ -1,8 +1,10 @@
 package com.example.gem_springboot.modules.users;
 
+import com.example.gem_springboot.modules.users.UserFilter;
 import com.example.gem_springboot.modules.users.internal.UserEntity;
 import com.example.gem_springboot.modules.users.internal.UserMapper;
 import com.example.gem_springboot.modules.users.internal.UserRepository;
+import com.example.gem_springboot.modules.users.internal.UserSpecifications;
 import com.example.gem_springboot.shared.DuplicateResourceException;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +31,7 @@ public class UserService {
     private final ApplicationEventPublisher events;
 
     public UsersList findAllPaginated(
-        String filter,
+        UserFilter filter,
         String sortBy,
         String order,
         int skip,
@@ -45,15 +48,11 @@ public class UserService {
         // Creo l'oggetto pageable
         Pageable pageable = PageRequest.of(pageNumber, limit, sort);
 
-        // Eseguo la query reale sul DB
-        Page<UserEntity> pageResult;
+        // Costruisco la specification dinamica
+        Specification<UserEntity> spec = UserSpecifications.withFilter(filter);
 
-        if (filter != null && !filter.isEmpty()) {
-            pageResult = userRepository.searchByText(filter, pageable);
-        } else {
-            // Se non c'è nessun filtro restituisco tutta la lista paginata
-            pageResult = userRepository.findAll(pageable);
-        }
+        // Il Repository accetta Specification e Pageable grazie all'interfaccia aggiunta
+        Page<UserEntity> pageResult = userRepository.findAll(spec, pageable);
 
         List<UserResponse> dtos = pageResult
             .getContent()
@@ -97,7 +96,7 @@ public class UserService {
         return userMapper.toDto(entity);
     }
 
-    @Transactional 
+    @Transactional
     @CacheEvict(value = "users", key = "#id") // Cancella l'utente modificato dalla cache
     public Optional<UserResponse> updateUser(UserRequest request, Long id) {
         return userRepository
@@ -134,7 +133,7 @@ public class UserService {
             });
     }
 
-    @Transactional 
+    @Transactional
     @CacheEvict(value = "users", key = "#id")
     public boolean deleteUser(Long id) {
         if (userRepository.existsById(id)) {

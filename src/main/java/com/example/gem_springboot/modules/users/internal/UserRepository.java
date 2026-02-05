@@ -1,26 +1,21 @@
 package com.example.gem_springboot.modules.users.internal;
 
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository
+    extends
+        JpaRepository<UserEntity, Long>,
+        JpaSpecificationExecutor<UserEntity>
+{
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
     java.util.Optional<UserEntity> findByEmail(String email);
     Optional<UserEntity> findByUsername(String username);
 
-    @Query(
-        //Seleziona gli oggetti UserEntity (alias 'u') filtrando i risultati in lower case
-        "SELECT u FROM UserEntity u WHERE " +
-            "LOWER(u.username) LIKE LOWER(CONCAT('%', :filter, '%')) OR " +
-            "LOWER(u.email) LIKE LOWER(CONCAT('%', :filter, '%'))"
-    )
-    Page<UserEntity> searchByText(
-        @Param("filter") String filter,
-        Pageable pageable
-    );
 }
