@@ -60,6 +60,9 @@ public class SecurityConfig {
                     // Permetto il login
                     .requestMatchers("/auth/login")
                     .permitAll()
+                    // Permetto accesso agli endpoint di Actuator (Prometheus, Health, ecc.)
+                    .requestMatchers("/actuator/**")
+                    .permitAll()
                     // Tutto il resto richiede autenticazione
                     .anyRequest()
                     .authenticated()
